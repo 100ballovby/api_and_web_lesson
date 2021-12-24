@@ -1,4 +1,5 @@
 import requests as r
+import json
 
 
 def fetch_horoscope(sign, day='tomorrow'):  # <- функция
@@ -13,15 +14,18 @@ def fetch_horoscope(sign, day='tomorrow'):  # <- функция
     return jr['description']  # возвращаю сам гороскоп
 
 
-def translate_horoscope():  # <- функция
+def translate_horoscope(text, lang='ru'):  # <- функция
     url = "https://microsoft-translator-text.p.rapidapi.com/translate"
-    querystring = {"to": "<REQUIRED>", "api-version": "3.0", "profanityAction": "NoAction", "textType": "plain"}
-    payload = []
+    querystring = {"to": lang, "api-version": "3.0", "profanityAction": "NoAction", "textType": "plain"}
+    payload = [
+        {'Text': text}
+    ]
+    pld = json.dumps(payload)  # перевожу Python код в JSON
     headers = {
         'content-type': "application/json",
         'x-rapidapi-host': "microsoft-translator-text.p.rapidapi.com",
         'x-rapidapi-key': "e2eb357b7amsh926cfc62b8ec75cp17a448jsn5b614312d78a"
     }
-    #response = requests.request("POST", url, data=payload, headers=headers, params=querystring)
-    response = r.post(url, data=payload, headers=headers, params=querystring)
-    return 'гороскоп'
+    response = r.post(url, data=pld, headers=headers, params=querystring)
+    jr = response.json()
+    return jr[0]['translations'][0]['text']
